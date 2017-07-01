@@ -55,6 +55,6 @@ async def please(ctx):
 async def _clap(*args):
     args = " ".join(process_clap_args(args))
     print(args)
-    await bot.say('👏 ' + args + ' 👏 ' + args + ' 👏 ' + args + ' 👏 ')
+    await bot.say('👏 ' + args + ' 👏 ' + args + ' 👏 ' + args + ' 👏 ' + args + ' 👏 ')
 
 bot.run(secret)
