@@ -5,7 +5,16 @@ import json, requests
 description = 'John Ellis "Jeb" Bush Sr. is an American businessman and politician who served as the 43rd Governor of Florida from 1999 to 2007.'
 bot = commands.Bot(command_prefix='jeb, ', description=description)
 
-messages_of_resilience = ["fuck u bitch u dont know me", "i've got real ones past kennedy road so sit bro", "my brother was once president; he'll get u for that", "you're on a list", "i did benghazi and i'll do ur mom"]
+messages_of_resilience = [
+    "fuck u bitch u dont know me", 
+    "my dad is the greatest man alive; if anybody disagrees, we'll go outside", # an actual quote, apparently
+    "i've got real ones past kennedy road so sit bro", 
+    "my brother was once president; he'll get u for that", 
+    "you're on a list", 
+    "i did benghazi and i'll do ur mom",
+    "this is harlem; we do walk-bys"
+]
+
 secret = "blank"
 with open('secret.txt', 'r') as myfile:
     secret=myfile.read()
