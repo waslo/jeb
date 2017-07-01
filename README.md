@@ -1,6 +1,6 @@
 # jeb
 
-scrappy heavyweight discord personality who can:
+your average monolithic highly-coupled heavyweight discord personality who can:
 
 * clap - `please clap [for] [objects of celebration]`
 * report the price of ether - `eth`
