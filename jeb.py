@@ -1,7 +1,7 @@
 from discord.ext import commands
 import random
 import json, requests
-#Testing webhook3
+#Testing webhook4
 description = 'John Ellis "Jeb" Bush Sr. is an American businessman and politician who served as the 43rd Governor of Florida from 1999 to 2007.'
 bot = commands.Bot(command_prefix='jeb, ', description=description)
 
@@ -25,7 +25,7 @@ def process_clap_args(strs):
 
 @bot.event
 async def on_ready():
-    print('Logged in')
+    print('Logged in!')
 
 state = {"last_eth": -1}
 
