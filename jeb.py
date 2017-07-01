@@ -25,7 +25,7 @@ def process_clap_args(strs):
 
 @bot.event
 async def on_ready():
-    print('Logged in!')
+    print('Logged in!!')
 
 state = {"last_eth": -1}
 
