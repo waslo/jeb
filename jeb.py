@@ -1,6 +1,7 @@
 from discord.ext import commands
 import random
 import json, requests
+import praw
 from bs4 import BeautifulSoup
 ################################################################################################################
 
@@ -44,9 +45,27 @@ giphy_api_key = ""
 with open('giphy.txt', 'r') as myfile:
     giphy_api_key = myfile.read()
 
+reddit = praw.Reddit(client_id='ME1edWqMxu_67A', client_secret="XbP_JLO_wa4bOxMAw6dxSIlcdfY", user_agent='jeb-discord')
+
 ################################################################################################################
 
 # Helper functions
+
+def iter_sample_fast(iterable, samplesize):
+    results = []
+    iterator = iter(iterable)
+    # Fill in the first samplesize elements:
+    try:
+        for _ in range(samplesize):
+            results.append(iterator.next())
+    except StopIteration:
+        raise ValueError("Sample larger than population.")
+    random.shuffle(results)  # Randomize their positions
+    for i, v in enumerate(iterator, samplesize):
+        r = random.randint(0, i)
+        if r < samplesize:
+            results[r] = v  # at a decreasing rate, replace random items
+    return results
 
 def i4u(x):
     if x == "you":
@@ -88,6 +107,28 @@ async def eth():
 
     state["last_eth"] = data["USD"]
     await bot.say(reply)
+
+@bot.command()
+async def show(*args):
+    if len(args) == 0:
+        args = ["corgi"]
+    subreddit = args[0]
+    time_filter = 'day'
+    if subreddit == "more":
+        if len(args) == 1:
+            args = ["more", "corgi"]
+        subreddit = args[1]
+        time_filter = 'week'
+    sr = reddit.subreddit(subreddit)
+    iterable = sr.top(time_filter=time_filter, limit=50)
+    try:
+        post = iter_sample_fast(iterable, 1)[0]
+        if post.is_self:
+            await bot.say(post.title + "\n\n\n" + post.selftext)
+        else:
+            await bot.say(post.url)
+    except:
+        await bot.say(random.choice(messages_of_incredulity) % subreddit)
 
 @bot.group(pass_context=True)
 async def send(ctx, *args):
