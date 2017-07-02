@@ -1,16 +1,14 @@
 from discord.ext import commands
 import random
 import json, requests
-
+from bs4 import BeautifulSoup
 ################################################################################################################
 
 # Initialization
 
 description = 'John Ellis "Jeb" Bush Sr. is an American businessman and politician who served as the 43rd Governor of Florida from 1999 to 2007.'
 bot = commands.Bot(command_prefix='jeb, ', description=description)
-
 state = {"last_eth": -1}
-
 messages_of_resilience = [
     "fuck u bitch u dont know me", 
     "my dad is the greatest man alive; if anybody disagrees, we'll go outside", # an actual quote, apparently
@@ -51,6 +49,12 @@ def process_clap_args(strs):
     strs = list(map(i4u, strs))
     return strs
 
+def unique(args, ticker):
+    for stock in args:
+        if stock == ticker:
+            return False
+    return True
+stocks = dict.fromkeys(["colin", "tao", "wes", "adib"])
 ################################################################################################################
 
 # Bot commands
@@ -84,6 +88,53 @@ async def send(ctx, *args):
         resp = requests.get(url=url, params=payload)
         data = json.loads(resp.text)
         await bot.say(random.choice(data["data"])["embed_url"])
+
+@bot.command(name='+stock')
+async def add_ticker(*args):
+    args = " ".join(process_clap_args(args))
+    args = args.split(' ')
+    if len(args)<2:
+        await bot.say("Your input is off. FORMAT: [jeb, +stock name Ticker1 Ticker2 Ticker3 ...]")
+        return
+    if (args[0] in stocks) and (not stocks[args[0]] is None):
+         for ticker in stocks[args[0]]:
+             if unique(args, ticker):
+              args.append(ticker)
+         stocks[args[0]] = args[1:len(args)]
+    else:
+        stocks[args[0]] = args[1:len(args)]
+    await bot.say("Adding " + str(stocks[args[0]]) + " for " + args[0])
+
+@bot.command(name='?stock')
+async def search_ticker(*args):
+    args = " ".join(process_clap_args(args))
+    if stocks[args] is None:
+        await bot.say('Create some stocks before you try to price them dog')
+    else:
+        requestedStocks = dict.fromkeys(stocks[args])
+        for ticker in stocks[args]:
+            url = 'https://ca.finance.yahoo.com/quote/'+ticker+'?p=' +ticker
+            resp = requests.get(url=url)
+            soup = BeautifulSoup(resp.content, "html.parser")
+            prices = soup.find_all("span", "Trsdu(0.3s) Fw(b) Fz(36px) Mb(-4px) D(ib)")
+            requestedStocks[ticker] = prices[0].findAll(text=True)
+        await bot.say(requestedStocks)
+
+@bot.command(name='-stock')
+async def remove_ticker(*args):
+    args = " ".join(process_clap_args(args))
+    args = args.split(" ")
+    if len(args) < 2:
+        await bot.say("Your input is off. FORMAT: [jeb, -stock name TickerToRemove]")
+        return
+    if stocks[args[0]] is None:
+        await bot.say('Who r u, where am I')
+    else:
+        if not unique(stocks[args[0]], args[1]):
+         stocks[args[0]].remove(args[1])
+         await bot.say(args[1] + ' was removed ' +args[0]+ ' , sorry for your losses, next time you should buy low and sell high')
+        else:
+         await bot.say("You arent subscribed to that stock")
 
 @bot.group(pass_context=True)
 async def please(ctx):
