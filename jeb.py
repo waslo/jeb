@@ -67,7 +67,8 @@ async def eth():
 
     reply = "The price of ether is $" + str(data["USD"])
     if state["last_eth"] > 0:
-        reply += ", a difference of " + ('%.2f' % (data["USD"] - state["last_eth"])) + " since I last checked"
+        diff = data["USD"] - state["last_eth"]
+        reply += ", a difference of " + ("+" if diff > 0 else "") + ('%.2f' % diff) + " since I last checked"
 
     state["last_eth"] = data["USD"]
     await bot.say(reply)
