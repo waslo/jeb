@@ -30,6 +30,10 @@ nude_photographs = [
 	"http://static.wixstatic.com/media/717f4e_5d4fd182c2d34f4988ecf42d6c905130.jpg"
 ]
 
+giphy_api_key = ""
+with open('giphy.txt', 'r') as myfile:
+    giphy_api_key = myfile.read()
+
 ################################################################################################################
 
 # Helper functions
@@ -69,13 +73,16 @@ async def eth():
     await bot.say(reply)
 
 @bot.group(pass_context=True)
-async def send(ctx):
-    if ctx.invoked_subcommand is None:
-        await bot.say(random.choice(messages_of_resilience))
-
-@send.command(name='nudes')
-async def _nudes(*args):
-    await bot.say(random.choice(nude_photographs))
+async def send(ctx, *args):
+    query = " ".join(args)
+    if query == "nudes" :
+        await bot.say(random.choice(nude_photographs))
+    else:
+        url = 'https://api.giphy.com/v1/gifs/search'
+        payload = {'api_key': giphy_api_key, 'q': query}
+        resp = requests.get(url=url, params=payload)
+        data = json.loads(resp.text)
+        await bot.say(random.choice(data["data"])["embed_url"])
 
 @bot.group(pass_context=True)
 async def please(ctx):
