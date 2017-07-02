@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 description = 'John Ellis "Jeb" Bush Sr. is an American businessman and politician who served as the 43rd Governor of Florida from 1999 to 2007.'
 bot = commands.Bot(command_prefix='jeb, ', description=description)
 state = {"last_eth": -1}
+
 messages_of_resilience = [
     "fuck u bitch u dont know me", 
     "my dad is the greatest man alive; if anybody disagrees, we'll go outside", # an actual quote, apparently
@@ -17,6 +18,17 @@ messages_of_resilience = [
     "you're on a list", 
     "i did benghazi and i'll do ur mom",
     "this is harlem; we do walk-bys"
+]
+
+messages_of_incredulity = [
+    "what the hell is a %s?",
+    "i have never heard of %s",
+    "wot in tarnation is a %s?",
+    "who is this hacker %s?",
+    "i didn't this %s be like it is, but it do",
+    "what dost thou signifie with the phrase %s?",
+    "i think i ate a '%s' once in thailand",
+    "who is '%s'? she sounds expensive"
 ]
 
 nude_photographs = [
@@ -87,7 +99,10 @@ async def send(ctx, *args):
         payload = {'api_key': giphy_api_key, 'q': query}
         resp = requests.get(url=url, params=payload)
         data = json.loads(resp.text)
-        await bot.say(random.choice(data["data"])["embed_url"])
+        if len(data["data"]) > 0:
+            await bot.say(random.choice(data["data"])["embed_url"])
+        else:
+            await bot.say(random.choice(messages_of_incredulity) % query)
 
 @bot.command(name='+stock')
 async def add_ticker(*args):
