@@ -21,12 +21,12 @@ messages_of_resilience = [
 ]
 
 messages_of_incredulity = [
-    "what the hell is a %s?",
-    "i have never heard of %s",
-    "wot in tarnation is a %s?",
-    "who is this hacker %s?",
-    "i didn't this %s be like it is, but it do",
-    "what dost thou signifie with the phrase %s?",
+    "what the hell is a '%s'?",
+    "i have never heard of '%s'",
+    "wot in tarnation is a '%s'?",
+    "who is this hacker '%s'?",
+    "i didn't thnks '%s' be like it is, but it do, my sources say",
+    "what dost thou signifie with the phrase '%s'?",
     "i think i ate a '%s' once in thailand",
     "who is '%s'? she sounds expensive"
 ]
