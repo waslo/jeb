@@ -2,8 +2,14 @@ from discord.ext import commands
 import random
 import json, requests
 
+################################################################################################################
+
+# Initialization
+
 description = 'John Ellis "Jeb" Bush Sr. is an American businessman and politician who served as the 43rd Governor of Florida from 1999 to 2007.'
 bot = commands.Bot(command_prefix='jeb, ', description=description)
+
+state = {"last_eth": -1}
 
 messages_of_resilience = [
     "fuck u bitch u dont know me", 
@@ -15,9 +21,18 @@ messages_of_resilience = [
     "this is harlem; we do walk-bys"
 ]
 
-secret = "blank"
-with open('secret.txt', 'r') as myfile:
-    secret=myfile.read()
+nude_photographs = [
+	"https://media.giphy.com/media/l4KhVo1OrKsqgToeQ/giphy.gif",
+	"http://i2.cdn.cnn.com/cnnnext/dam/assets/150312132133-jeb-bush-gallery-9-super-169.jpg",
+	"http://i.huffpost.com/gen/2948872/images/o-JEB-BUSH-facebook.jpg",
+	"http://a57.foxnews.com/images.foxnews.com/content/fox-news/opinion/2014/06/20/two-reasons-why-democrats-should-fear-jeb-bush-2016-presidential-bid/_jcr_content/par/featured-media/media-1.img.jpg/0/0/1422725617420.jpg?ve=1",
+	"http://i.imgur.com/zhjQf4V.jpg",
+	"http://static.wixstatic.com/media/717f4e_5d4fd182c2d34f4988ecf42d6c905130.jpg"
+]
+
+################################################################################################################
+
+# Helper functions
 
 def i4u(x):
     if x == "you":
@@ -32,11 +47,13 @@ def process_clap_args(strs):
     strs = list(map(i4u, strs))
     return strs
 
+################################################################################################################
+
+# Bot commands
+
 @bot.event
 async def on_ready():
-    print('Logged in!!')
-
-state = {"last_eth": -1}
+    print('Logged in!')
 
 @bot.command()
 async def eth():
@@ -52,18 +69,27 @@ async def eth():
     await bot.say(reply)
 
 @bot.group(pass_context=True)
-async def please(ctx):
-    """Says if a user is cool.
+async def send(ctx):
+    if ctx.invoked_subcommand is None:
+        await bot.say(random.choice(messages_of_resilience))
 
-    In reality this just checks if a subcommand is being invoked.
-    """
+@send.command(name='nudes')
+async def _nudes(*args):
+    await bot.say(random.choice(nude_photographs))
+
+@bot.group(pass_context=True)
+async def please(ctx):
     if ctx.invoked_subcommand is not _clap:
         await bot.say(random.choice(messages_of_resilience))
 
 @please.command(name='clap')
 async def _clap(*args):
     args = " ".join(process_clap_args(args))
-    print(args)
     await bot.say('👏 ' + args + ' 👏 ' + args + ' 👏 ' + args + ' 👏 ' + args + ' 👏 ' + args + ' 👏 ')
 
-bot.run(secret)
+################################################################################################################
+
+# Run bot 
+
+with open('secret.txt', 'r') as myfile:
+    bot.run(myfile.read())
