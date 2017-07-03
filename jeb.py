@@ -160,7 +160,7 @@ async def eth(*args):
         state["last_eth"] = data["USD"]
         await bot.say(reply)
     elif args[0] == "sent":
-        if state["last_sent"] is None or time.time() - state["last_sent"]["time"] > 600:
+        if state["last_sent"] is None or time.time() - state["last_sent"]["time"] > 300:
             await bot.type()
             subreddit = reddit.subreddit('ethtrader')
             submission = subreddit.hot().next() # The daily sticky
@@ -190,6 +190,13 @@ async def eth(*args):
                 "neg": 0
             }
 
+            if data["label"] == "neg":
+                data["label"] = "negative"
+            elif data["label"] == "pos":
+                data["label"] = "positive"
+            else:
+                data["label"] = "neutral"
+
             if state["last_sent"] is not None:
                 diff["pos"] = data["probability"]["pos"] - state["last_sent"]["pos"]
                 diff["neutral"] = data["probability"]["neutral"] - state["last_sent"]["neutral"]
@@ -207,18 +214,11 @@ async def eth(*args):
             for key in diff:
                 val = diff[key]
                 if val > 0:
-                    diff[key] = "+" + ("%.2d%%" % (100 * val)).strip("0")
+                    diff[key] = "+" + "{:.2%}".format(val)
                 elif val < 0:
-                    diff[key] = "-" + ("%.2d%%" % (-100 * val)).strip("0")
+                    diff[key] = "-" + "{:.2%}".format(-1 * val)
                 else:
                     diff[key] = "unchanged"
-
-            if data["label"] == "neg":
-                data["label"] = "negative"
-            elif data["label"] == "pos":
-                data["label"] = "positive"
-            else:
-                data["label"] = "neutral"
 
             reply = "The sentiment on ether is **%s** with probability breakdown of %.2d%% positive (%s), %.2d%% negative (%s), and %.2d%% neutral (%s)" % (str(data["label"]), 100 * data["probability"]["pos"], diff["pos"], 100 * data["probability"]["neg"], diff["neg"], 100 * data["probability"]["neutral"], diff["neutral"])
             await bot.say(reply)
