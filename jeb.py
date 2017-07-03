@@ -2,6 +2,7 @@ from discord.ext import commands
 import random
 import json, requests
 import praw
+import re
 from bs4 import BeautifulSoup
 ################################################################################################################
 
@@ -45,6 +46,10 @@ giphy_api_key = ""
 with open('giphy.txt', 'r') as myfile:
     giphy_api_key = myfile.read()
 
+wolfram_appid = ""
+with open('wolfram.txt', 'r') as myfile:
+     wolfram_appid = myfile.read()
+
 reddit = praw.Reddit(client_id='ME1edWqMxu_67A', client_secret="XbP_JLO_wa4bOxMAw6dxSIlcdfY", user_agent='jeb-discord')
 
 ################################################################################################################
@@ -85,6 +90,42 @@ def unique(args, ticker):
         if stock == ticker:
             return False
     return True
+
+def extractObj(q):
+    obj = re.split("are|is|a|an", q.strip())[-1]
+    if obj[-1] == "?":
+        obj = obj[:-1]
+    return obj.strip()
+
+async def handleWolfram(q):
+    url = 'http://api.wolframalpha.com/v2/query'
+    payload = {'input': q, 'appid': wolfram_appid, 'output': 'json', 'format': 'plaintext'}
+    resp = requests.get(url=url, params=payload)
+    data = json.loads(resp.text)
+    
+    if data["queryresult"]["numpods"] == 0:
+        obj = extractObj(q) 
+        await bot.say(random.choice(messages_of_incredulity) % obj)
+    else:
+        result = ""
+        backup = ""
+        for pod in data["queryresult"]["pods"][:10]:
+            if pod["error"]:
+                continue
+            for subpod in pod["subpods"]:
+                backup += subpod["plaintext"] + "\n\n"
+                if "img" in subpod:
+                    backup += subpod["img"]["src"] + "\n\n"
+            if "primary" in pod and pod["primary"]:
+                for subpod in pod["subpods"]:
+                    result += subpod["plaintext"] + "\n\n"
+                    if "img" in subpod:
+                        result += subpod["img"]["src"] + "\n\n"
+
+                await bot.say(result)
+                return
+        await bot.say(backup)
+
 stocks = dict.fromkeys(["colin", "tao", "wes", "adib"])
 ################################################################################################################
 
@@ -107,6 +148,38 @@ async def eth():
 
     state["last_eth"] = data["USD"]
     await bot.say(reply)
+
+@bot.command()
+async def what(*args):
+    await bot.type()
+    if len(args) == 0:
+        args = ["is jeb bush's birthday"]
+    q = "what " + " ".join(args)
+    await handleWolfram(q)
+
+@bot.command(name="what?")
+async def what2(*args):
+    await bot.type()
+    if len(args) == 0:
+        args = ["is jeb bush's birthday"]
+    q = "what " + " ".join(args)
+    await handleWolfram(q)
+
+@bot.command()
+async def who(*args):
+    await bot.type()
+    if len(args) == 0:
+        args = ["is jeb bush?"]
+    q = "who " + " ".join(args)
+    await handleWolfram(q)
+
+@bot.command(name="who?")
+async def who2(*args):
+    await bot.type()
+    if len(args) == 0:
+        args = ["is jeb bush?"]
+    q = "who " + " ".join(args)
+    await handleWolfram(q)
 
 @bot.command()
 async def show(*args):
