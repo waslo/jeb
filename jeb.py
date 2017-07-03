@@ -17,13 +17,21 @@ state = {
 }
 
 messages_of_resilience = [
-    "fuck u bitch u dont know me", 
-    "my dad is the greatest man alive; if anybody disagrees, we'll go outside", # an actual quote, apparently
-    "i've got real ones past kennedy road so sit bro", 
+    "my dad is the greatest man alive; if anybody disagrees, we'll go outside", 
+    "i've got real ones past kennedy road", 
     "my brother was once president; he'll get u for that", 
-    "you're on a list", 
+    "you're on a list now, i'll make sure of it", 
     "i did benghazi and i'll do ur mom",
-    "this is harlem; we do walk-bys"
+    "this is harlem; we do walk-bys",
+    "i saw that supergirl is on tv. she looked pretty hot i dont know what channel it's on, but i'm looking forward to that",
+    "im not sure we need a half a billion dollars for womens health programs",
+    "4 percent growth as far as the eye can see!",
+    "people need to work longer hours and, through their productivity, gain more income for their families",
+    "i would not have gone into iraq; it is 'chiraq' at home that needs attention",
+    "you're not going to be able to insult your way to the presidency. that's not going to happen",
+    "frankly it’s more related to asian people coming into our country having children in that organized efforts taking advantage of a noble concept",
+    "It’s time to strive for a society where there’s equality of opportunity, not equality of results. so I’m going to answer your question by saying: probably nothing.",
+    "what you need to know is that who I listen to when I need advice on the middle east is george dubya bush."
 ]
 
 messages_of_incredulity = [
