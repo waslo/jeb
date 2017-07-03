@@ -6,6 +6,7 @@ your average monolithic highly-coupled heavyweight discord personality who can:
 * report the price of ether - `eth`
 * giphy - `send [subject of gif]`
 * reddit - `show ["more"] [subreddit]`
+* wolfram - `what/who [query]`
 
 he responds exclusively to `jeb, `
 

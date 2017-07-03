@@ -56,6 +56,7 @@ reddit = praw.Reddit(client_id='ME1edWqMxu_67A', client_secret="XbP_JLO_wa4bOxMA
 
 # Helper functions
 
+# Gets a random element from an iterable
 def iter_sample_fast(iterable, samplesize):
     results = []
     iterator = iter(iterable)
@@ -72,12 +73,14 @@ def iter_sample_fast(iterable, samplesize):
             results[r] = v  # at a decreasing rate, replace random items
     return results
 
+# Returns "i" if passed "you"
 def i4u(x):
     if x == "you":
         return "i"
 
     return x
 
+# Helper for clap command
 def process_clap_args(strs):
     if len(strs) > 0 and strs[0] == "for":
         strs = strs[1:]
@@ -91,12 +94,14 @@ def unique(args, ticker):
             return False
     return True
 
+# Given a query, extracts the grammatical object of that query
 def extractObj(q):
     obj = re.split("are|is|a|an", q.strip())[-1]
     if obj[-1] == "?":
         obj = obj[:-1]
     return obj.strip()
 
+# Helper for Wolfram related queries
 async def handleWolfram(q):
     url = 'http://api.wolframalpha.com/v2/query'
     payload = {'input': q, 'appid': wolfram_appid, 'output': 'json', 'format': 'plaintext'}
