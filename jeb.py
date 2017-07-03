@@ -3,6 +3,7 @@ import random
 import json, requests
 import praw
 import re
+import time
 from bs4 import BeautifulSoup
 ################################################################################################################
 
@@ -10,7 +11,10 @@ from bs4 import BeautifulSoup
 
 description = 'John Ellis "Jeb" Bush Sr. is an American businessman and politician who served as the 43rd Governor of Florida from 1999 to 2007.'
 bot = commands.Bot(command_prefix='jeb, ', description=description)
-state = {"last_eth": -1}
+state = {
+    "last_eth": -1,
+    "last_sent": None
+}
 
 messages_of_resilience = [
     "fuck u bitch u dont know me", 
@@ -50,6 +54,7 @@ wolfram_appid = ""
 with open('wolfram.txt', 'r') as myfile:
      wolfram_appid = myfile.read()
 
+# TODO regenerate and revoke these lel; already posted to Github
 reddit = praw.Reddit(client_id='ME1edWqMxu_67A', client_secret="XbP_JLO_wa4bOxMAw6dxSIlcdfY", user_agent='jeb-discord')
 
 ################################################################################################################
@@ -141,18 +146,86 @@ async def on_ready():
     print('Logged in!')
 
 @bot.command()
-async def eth():
-    url = 'https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD'
-    resp = requests.get(url=url)
-    data = json.loads(resp.text)
+async def eth(*args):
+    if len(args) == 0:
+        url = 'https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD'
+        resp = requests.get(url=url)
+        data = json.loads(resp.text)
 
-    reply = "The price of ether is $" + str(data["USD"])
-    if state["last_eth"] > 0:
-        diff = data["USD"] - state["last_eth"]
-        reply += ", a difference of " + ("+" if diff > 0 else "") + ('%.2f' % diff) + " since I last checked"
+        reply = "The price of ether is $" + str(data["USD"])
+        if state["last_eth"] > 0:
+            diff = data["USD"] - state["last_eth"]
+            reply += ", a difference of " + ("+" if diff > 0 else "") + ('%.2f' % diff) + " since I last checked"
 
-    state["last_eth"] = data["USD"]
-    await bot.say(reply)
+        state["last_eth"] = data["USD"]
+        await bot.say(reply)
+    elif args[0] == "sent":
+        if state["last_sent"] is None or time.time() - state["last_sent"]["time"] > 600:
+            await bot.type()
+            subreddit = reddit.subreddit('ethtrader')
+            submission = subreddit.hot().next() # The daily sticky
+            submission.comment_sort = 'new'
+            submission.comments.replace_more(limit=0)
+
+            all_comments = ""
+            all_comments_len = 0
+            for comment in submission.comments.list():
+                comment = comment.body
+                comment_len = len(comment)
+                if comment_len + all_comments_len > 3000:
+                    break
+
+                all_comments += comment
+                all_comments_len += comment_len
+
+            all_comments = " ".join(all_comments.split())
+            url = 'http://text-processing.com/api/sentiment/'
+            payload = {'text': all_comments}
+            resp = requests.post(url=url, data=payload)
+            data = json.loads(resp.text)
+
+            diff = {
+                "pos": 0,
+                "neutral": 0,
+                "neg": 0
+            }
+
+            if state["last_sent"] is not None:
+                diff["pos"] = data["probability"]["pos"] - state["last_sent"]["pos"]
+                diff["neutral"] = data["probability"]["neutral"] - state["last_sent"]["neutral"]
+                diff["neg"] = data["probability"]["neg"] - state["last_sent"]["neg"]
+
+            state["last_sent"] = {
+                "pos": data["probability"]["pos"],
+                "neutral": data["probability"]["neutral"],
+                "neg": data["probability"]["neg"],
+                "time": time.time(),
+                "diff": diff,
+                "label": data["label"]
+            }
+
+            for key in diff:
+                val = diff[key]
+                if val > 0:
+                    diff[key] = "+" + ("%.2d%%" % (100 * val)).strip("0")
+                elif val < 0:
+                    diff[key] = "-" + ("%.2d%%" % (-100 * val)).strip("0")
+                else:
+                    diff[key] = "unchanged"
+
+            if data["label"] == "neg":
+                data["label"] = "negative"
+            elif data["label"] == "pos":
+                data["label"] = "positive"
+            else:
+                data["label"] = "neutral"
+
+            reply = "The sentiment on ether is **%s** with probability breakdown of %.2d%% positive (%s), %.2d%% negative (%s), and %.2d%% neutral (%s)" % (str(data["label"]), 100 * data["probability"]["pos"], diff["pos"], 100 * data["probability"]["neg"], diff["neg"], 100 * data["probability"]["neutral"], diff["neutral"])
+            await bot.say(reply)
+        else:
+            last = state["last_sent"]
+            reply = "The *cached* sentiment on ether is %s with probability breakdown of %.2d%% positive (%s), %.2d%% negative (%s), and %.2d%% neutral (%s)" % (last["label"], 100 * last["pos"], last["diff"]["pos"], 100 * last["neg"], last["diff"]["neg"], 100 * last["neutral"], last["diff"]["neutral"])
+            await bot.say(reply)
 
 @bot.command()
 async def what(*args):
