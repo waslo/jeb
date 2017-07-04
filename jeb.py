@@ -1,4 +1,5 @@
 from discord.ext import commands
+import discord
 import random
 import json, requests
 import praw
@@ -61,6 +62,10 @@ with open('giphy.txt', 'r') as myfile:
 wolfram_appid = ""
 with open('wolfram.txt', 'r') as myfile:
      wolfram_appid = myfile.read()
+
+pubg_api_key = ""
+with open ('pubg.txt','r') as myfile:
+    pubg_api_key = myfile.read()
 
 # TODO regenerate and revoke these lel; already posted to Github
 reddit = praw.Reddit(client_id='ME1edWqMxu_67A', client_secret="XbP_JLO_wa4bOxMAw6dxSIlcdfY", user_agent='jeb-discord')
@@ -160,6 +165,72 @@ async def say(*args):
         await bot.say(reply)
     else:
         await bot.say(random.choice(messages_of_resilience))
+
+@bot.command (pass_context = True)
+async def pubg(ctx, *args):
+    played_name = "Played"
+    played = ""
+    wins_name = "Wins"
+    wins = ""
+    kpg_name = "Kills Per Game"
+    kpg = ""
+    ttr_name = "Top Ten Rate"
+    ttr = ""
+    rating_name = "Rating"
+    rating = ""
+    rating_p_name = "Percentile"
+    rating_p = ""
+    url = "%s%s" % ("https://pubgtracker.com/api/profile/pc/", args[0])
+    resp = requests.get(url=url, headers={'content-type': "application/json",'trn-api-key': 'e3fc3c17-4e92-4946-8d24-e2008eca4524'})
+    data = json.loads(resp.text)
+    thumbnailurl = data ["Avatar"]
+    username = data ["PlayerName"]
+    profile_url = "%s%s" % ("https://pubg.me/player/username", args[0])
+    dataset = 0
+    embed_validation = 0
+    if args[1] == "solo":
+        dataset = 0
+    elif args[1] == "duo":
+        dataset = 1
+    else:
+        dataset = 2
+
+    if len(args) < 3:
+            played = data["Stats"][dataset]["Stats"][3]["displayValue"]
+            wins = data ["Stats"][dataset]["Stats"][4]["displayValue"]
+            kpg = data ["Stats"][dataset]["Stats"][0]["displayValue"]
+            ttr = data ["Stats"][dataset]["Stats"][7]["displayValue"]
+            rating = data ["Stats"][dataset]["Stats"][9]["displayValue"]
+            rating_p = "%s%s" % (data ["Stats"][dataset]["Stats"][9]["percentile"], "%")
+            embed_validation = 1
+    elif args[2] == "more":
+            played_name = "Total Kills"
+            played = data["Stats"][dataset]["Stats"][21]["displayValue"]
+            wins_name = "Headshot Kill %"
+            wins = data ["Stats"][dataset]["Stats"][26]["displayValue"]
+            kpg_name = "Avg Walk / Ride Distance"
+            kpg = "%s / %s" % (data ["Stats"][dataset]["Stats"][42]["displayValue"],data ["Stats"][dataset]["Stats"][43]["displayValue"])
+            ttr_name = "Distance Travelled"
+            ttr = data ["Stats"][dataset]["Stats"][41]["displayValue"]
+            rating_name = "Damage Per Game"
+            rating = data ["Stats"][dataset]["Stats"][11]["displayValue"]
+            rating_p_name = "Longest Kill"
+            rating_p = data ["Stats"][dataset]["Stats"][44]["displayValue"]
+            embed_validation = 1
+
+    em = discord.Embed(title="Stats", colour=0x42f4eb, url=profile_url)
+
+    em.set_thumbnail(url=thumbnailurl)
+    em.set_author(name=username)
+    em.add_field(name=played_name, value=played, inline=True)
+    em.add_field(name=wins_name, value=wins, inline=True)
+    em.add_field(name=kpg_name, value=kpg, inline=True)
+    em.add_field(name=ttr_name, value=ttr, inline=True)
+    em.add_field(name=rating_name, value=rating, inline=True)
+    em.add_field(name=rating_p_name, value=rating_p, inline=True)
+    if embed_validation == 1:
+        await bot.send_message(ctx.message.channel, embed=em)
+
 
 
 @bot.command()
