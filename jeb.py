@@ -154,8 +154,13 @@ async def on_ready():
     print('Logged in!')
 
 @bot.command()
-async def waslo(*args):
-    await bot.say("hello")
+async def say(*args):
+    reply = ' '.join (args)
+    if random.random() < .5 :
+        await bot.say(reply)
+    else:
+        await bot.say(random.choice(messages_of_resilience))
+
 
 @bot.command()
 async def eth(*args):
