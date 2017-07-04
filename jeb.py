@@ -154,10 +154,6 @@ async def on_ready():
     print('Logged in!')
 
 @bot.command()
-async def waslo(*args):
-    await bot.say("hello")
-
-@bot.command()
 async def eth(*args):
     if len(args) == 0:
         url = 'https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD'
